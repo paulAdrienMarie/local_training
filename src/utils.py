@@ -26,21 +26,30 @@ def preprocess_image(base64_data):
     image = transform(image).unsqueeze(0)  # Add batch dimension
     return image.numpy()
 
-def preprocess_image_for_training(base64_data):
+def data_augmentation(base64_data):
+    
+    num_images = 10
+    images = [] 
     input_size = (pre["size"]["height"], pre["size"]["width"])
-    image = Image.open(BytesIO(base64.b64decode(base64_data)))
-    transform = transforms.Compose(
-        [
-            transforms.Resize(input_size),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
-            transforms.RandomRotation(10),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
-            transforms.ToTensor(),
-        ]
-    )
-    image = transform(image).unsqueeze(0)
-    return image.numpy()
+    input_image = Image.open(BytesIO(base64.b64decode(base64_data)))
+    
+    for i in range(num_images):
+    
+        transform = transforms.Compose(
+            [
+                transforms.Resize(input_size),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                transforms.RandomRotation(90),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+                transforms.ToTensor(),
+            ]
+        )
+        image = transform(input_image).unsqueeze(0)
+        image = image.numpy()
+        images.append(image)
+    
+    return images
 
 
 def run_inference(base64_data):
@@ -61,8 +70,8 @@ def softmax(z):
     probabilities = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
     return probabilities
 
-def generate_target_logits(target_class_index, num_classes, large_value):
-    logits = np.full((1, num_classes), -large_value, dtype=np.float32)
+def generate_target_logits(target_class_index, num_classes, large_value, low_value):
+    logits = np.full((1, num_classes), low_value, dtype=np.float32)
     logits[0][target_class_index] = large_value
     
     return logits

@@ -132,3 +132,18 @@ cursor: default;
 background-color: #298e46;
 box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
 }
+
+/* Add some space between the checkbox containers */
+.checkbox-container {
+  margin-bottom: 10px; /* Adjust the value to increase or decrease space */
+}
+
+/* Style for the generated text container */
+#textarea-id {
+  margin-top: 20px;
+}
+
+/* Bold class styling */
+.bold {
+  font-weight: bold;
+}

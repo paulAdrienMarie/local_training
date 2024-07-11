@@ -55,20 +55,35 @@ function displayOutput(data) {
   const labelsContainer = document.createElement("div");
   labelsContainer.id = "labels-container";
 
-  // Iterate over the dictionary and create paragraphs
+  // Iterate over the dictionary and create checkboxes
   for (const label in labels) {
     if (labels.hasOwnProperty(label)) {
-      const p = document.createElement("p");
-      p.innerHTML = `${label}: <span class="bold">${labels[label]}</span>`;
-      labelsContainer.appendChild(p);
+      const checkboxContainer = document.createElement("div");
+      checkboxContainer.classList.add("checkbox-container");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = `checkbox-${label}`;
+      checkbox.name = label;
+      checkbox.value = labels[label];
+
+      const labelElement = document.createElement("label");
+      labelElement.htmlFor = `checkbox-${label}`;
+      labelElement.innerHTML = `${label}: <span class="bold">${labels[label]}</span>`;
+
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(labelElement);
+
+      labelsContainer.appendChild(checkboxContainer);
     }
   }
 
   // Append the labels container to the generated text div
   generated_text.appendChild(labelsContainer);
 
-  // Append the generated text to the labels container
-  imageContainer.append(generated_text);
+  // Append the generated text to the image container
+  const imageContainer = document.getElementById("image-container");
+  imageContainer.appendChild(generated_text);
 
   // Call the displayButtons function (assuming it exists)
   displayButtons();
@@ -90,62 +105,61 @@ function displayButtons() {
   buttons.appendChild(button_validate);
   buttons.appendChild(button_retrain);
   add_Event("button-retrain-id");
+  add_Event("button-validate-id");
 }
 
 // Function to add event listener to buttons
 function add_Event(id) {
-
-  document.getElementById(id).addEventListener("click", function () {
-
-    if (!document.getElementById("new-output-id")) {
-      // element div for training
-      let training_div = document.createElement("div");
-      training_div.id = "training-div";
-      const text_area = document.getElementById("textarea-id");
-      text_area.appendChild(training_div);
-
-
-      // element input for new class proposal 
-      let new_output_ = document.createElement("input");
-      new_output_.id = "new-output-id";
-
-      // element button to launch request to training endpoint
-      let submit_button = document.createElement("button");
-      submit_button.type = "submit";
-      submit_button.id = "launch-training-button";
-      submit_button.innerText = "Launch training";
-
-      training_div.appendChild(new_output_);
-      training_div.appendChild(submit_button);
-
-      document.getElementById("launch-training-button").addEventListener("click", function() {
-        let new_class = document.getElementById('new-output-id').value;
-        launch_training_request(new_class);
-      })
-    }
-  })
+  if (id === "button-retrain-id") {
+    document.getElementById(id).addEventListener("click", function () {
+      console.log("button-clicked");
+      
+      const checkedCheckbox = document.querySelector(
+        "#labels-container input[type='checkbox']:checked"
+      );
+      if (checkedCheckbox) {
+        // Get the label associated with the checked checkbox
+        const labelElement = document.querySelector(
+          `label[for="${checkedCheckbox.id}"]`
+        );
+        const labelText = labelElement.innerText.split(":")[0]; // Extract label text before the col
+        // Launch the training request with the label of the checked checkbox
+        launch_training_request(labelText);
+      } else {
+        alert("Please select a label before launching the training.");
+      }
+    });
+  } else {
+    document.getElementById(id).addEventListener("click", function () {
+      const image = document.getElementById("image-id");
+      imageContainer.removeChild(image);
+      const textarea = document.getElementById("textarea-id");
+      imageContainer.removeChild(textarea);
+      document.getElementById("result").textContent = "";
+    });
+  }
 }
 
-function launch_training_request(new_class){
+function launch_training_request(new_class) {
 
   let image = document.getElementById("image-id");
-  
-  document.getElementById("result").textContent = "Training started with success";
 
-    fetch("/train", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ "input_image": image.src, "correct_class": new_class }),
+  document.getElementById("result").textContent =
+    "Training started with success";
+
+  fetch("/train", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ input_image: image.src, correct_class: new_class }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      document.getElementById("result").textContent = data.message;
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        document.getElementById("result").textContent = data.message;
-      })
-      .catch((error) => {
-        document.getElementById("result").textContent = "Error: " + error;
-      });
+    .catch((error) => {
+      document.getElementById("result").textContent = "Error: " + error;
+    });
 }
-    

@@ -19,12 +19,12 @@ except onnx.checker.ValidationError as e:
 else:
     print("The exported model is valid!")
 
-model_initializers = onnx_model.graph.initializer
-requires_grad = []
-frozen_params = []
-
-for initializer in model_initializers:
-    requires_grad.append(initializer.name)
+requires_grad = ["classifier.weight", "classifier.bias"]
+frozen_params = [
+    param.name
+    for param in onnx_model.graph.initializer
+    if param.name not in requires_grad
+]
 
 path_to_output_artifacts = "./training_artifacts"
 
