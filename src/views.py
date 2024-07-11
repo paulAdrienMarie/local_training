@@ -5,6 +5,7 @@ import json
 import numpy as np
 import platform
 assert platform.python_version_tuple() == ('3', '9', '6')
+import pdb
 
 # path to training artifacts
 path_to_training = "./training_artifacts/training_model.onnx"
@@ -71,7 +72,7 @@ async def training_handler(request):
             path_to_eval,
             device="cpu"
         )
-                
+        pdb.set_trace()       
         optimizer = Optimizer(path_to_optimizer,module)
         optimizer.get_learning_rate()
         
