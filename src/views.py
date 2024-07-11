@@ -1,13 +1,10 @@
 from aiohttp import web
-import platform
-assert platform.python_version_tuple() == ('3', '9', '6')
-from transformers import pipeline 
 from onnxruntime.training.api import CheckpointState, Module, Optimizer
-from utils import get_labels, data_augmentation, generate_target_logits, preprocess_image
-import onnx
-import pdb
+from utils import get_labels, data_augmentation, generate_target_logits
 import json
 import numpy as np
+import platform
+assert platform.python_version_tuple() == ('3', '9', '6')
 
 # path to training artifacts
 path_to_training = "./training_artifacts/training_model.onnx"

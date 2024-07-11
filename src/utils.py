@@ -5,7 +5,6 @@ import torchvision.transforms as transforms
 import json
 from io import BytesIO
 import base64
-import pdb
 
 with open("preprocessor_config.json") as f:
     pre = json.loads(f.read())

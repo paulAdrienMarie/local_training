@@ -1,12 +1,8 @@
 import platform
-
-assert platform.python_version_tuple() == ('3', '9', '6')
-
-from onnxruntime.training import artifacts
 import onnx
-from onnx.checker import check_model
-import pdb
+from onnxruntime.training import artifacts
 
+assert platform.python_version_tuple() == ("3", "9", "6")
 
 # Load the ONNX model
 onnx_model = onnx.load("./inference_artifacts/initial_model.onnx")
@@ -36,4 +32,3 @@ artifacts.generate_artifacts(
     requires_grad=requires_grad,
     frozen_params=frozen_params,
 )
-
